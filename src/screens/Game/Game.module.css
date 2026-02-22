@@ -1,0 +1,64 @@
+.game {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg);
+}
+
+.topBar {
+  width: 100%;
+  max-width: var(--game-max-width);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+}
+
+.noorCorner {
+  width: 40px;
+  height: 40px;
+}
+
+.moduleContainer {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+}
+
+.transition {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
+  padding: var(--space-xl);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.transitionMessage {
+  font-family: var(--font-game);
+  font-size: clamp(1.1rem, 3vw, 1.4rem);
+  color: var(--text-dark);
+  margin: var(--space-lg) 0;
+  max-width: 360px;
+  line-height: 1.5;
+}
+
+.continueBtn {
+  margin-top: var(--space-lg);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  font-family: var(--font-game);
+  color: var(--text-light);
+  font-size: 1.1rem;
+}

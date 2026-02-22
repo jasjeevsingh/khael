@@ -1,0 +1,126 @@
+.setup {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-2xl);
+  max-width: 520px;
+  width: 100%;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.title {
+  color: var(--primary);
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+.subtitle {
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.section {
+  margin-bottom: var(--space-xl);
+}
+
+.label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  margin-bottom: var(--space-md);
+}
+
+.buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.optionBtn {
+  padding: var(--space-sm) var(--space-md);
+  border: 2px solid var(--soft);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  color: var(--text-dark);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 44px;
+  min-width: 44px;
+}
+.optionBtn:hover {
+  border-color: var(--primary);
+  background: rgba(74, 124, 111, 0.05);
+}
+
+.optionBtnActive {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--white);
+}
+
+.conditionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.conditionBtn {
+  composes: optionBtn;
+  text-align: left;
+  width: 100%;
+}
+
+.conditionBtnActive {
+  composes: optionBtnActive;
+}
+
+.consentRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.checkbox {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.consentText {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+.beginBtn {
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+}
+
+.beginBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
