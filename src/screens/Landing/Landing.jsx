@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useGameState } from '../../state/gameState';
 import Noor from '../../components/Noor/Noor';
 import Learn from '../Learn/Learn';
@@ -6,6 +6,11 @@ import styles from './Landing.module.css';
 
 export default function Landing() {
   const { goToScreen } = useGameState();
+  const mainHeadingRef = useRef(null);
+
+  useEffect(() => {
+    mainHeadingRef.current?.focus({ preventScroll: true });
+  }, []);
 
   const handleBegin = useCallback(() => {
     goToScreen('setup');
@@ -21,7 +26,9 @@ export default function Landing() {
       {/* Hero */}
       <section className={styles.hero}>
         <Noor size={140} mood="happy" animate />
-        <h1 className={styles.heroTitle}>A gentle adventure for curious minds</h1>
+        <h1 className={styles.heroTitle} ref={mainHeadingRef} tabIndex={-1}>
+          A gentle adventure for curious minds
+        </h1>
         <p className={styles.heroSub}>
           Khael is a free, play-based activity designed to give parents a starting point
           for understanding how their child thinks, learns, and grows. No sterile assessments. Just a game to enjoy.
@@ -44,11 +51,11 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Trust bar
+      {/* Trust bar */}
       <section className={styles.trustBar} aria-label="Trust indicators">
         <div className={styles.trustItem}>
           <span className={styles.trustIcon} aria-hidden="true">🔒</span>
-          <span>No data collected or stored</span>
+          <span>We do not collect or store your child's responses. Fonts load from Google.</span>
         </div>
         <div className={styles.trustItem}>
           <span className={styles.trustIcon} aria-hidden="true">📵</span>
@@ -58,7 +65,7 @@ export default function Landing() {
           <span className={styles.trustIcon} aria-hidden="true">🎮</span>
           <span>Designed to feel like a game</span>
         </div>
-      </section> */}
+      </section>
 
       {/* How it works */}
       <section className={styles.howSection}>
@@ -91,23 +98,54 @@ export default function Landing() {
       </section>
 
       {/* Disclaimer */}
-      <section className={styles.disclaimer}>
+      <section className={styles.disclaimer} id="medical-disclaimer">
         <blockquote className={styles.disclaimerBox}>
-          Khael is not a diagnostic tool. It does not produce a diagnosis and it is not a
-          substitute for a clinical evaluation by a qualified professional. What it does is
-          give you a structured, thoughtful starting point — something to bring to your
-          pediatrician if you have concerns, or simply a window into how your child engages
-          with different types of thinking tasks. If the results suggest speaking with a
-          professional, we'll tell you clearly and tell you exactly what to say.
+          Khael is an educational, observational activity — not a diagnostic tool. It is not
+          standardized, normed, or validated against clinical instruments. It does not produce
+          a diagnosis and is not a substitute for evaluation by a qualified professional.
+          What it offers is a gentle, descriptive window into how your child engaged with
+          play-based tasks — something you might bring to your pediatrician if you have
+          questions, or simply a way to notice and appreciate how they learn. If what we
+          observed suggests a conversation with a professional could help, we'll tell you
+          clearly and suggest what to say.
         </blockquote>
       </section>
 
       {/* Learn section */}
       <Learn />
 
+      {/* Privacy */}
+      <section className={styles.legalSection} id="privacy">
+        <h2 className={styles.legalTitle}>Privacy</h2>
+        <p className={styles.legalText}>
+          Khael runs entirely in your browser. We do not collect, store, or transmit
+          your child's responses, scores, or any identifying information. Fonts are loaded
+          from Google; their privacy policy applies to that request. Session data exists
+          only in memory and is discarded when you close the tab. There is no account,
+          no database, and no tracking.
+        </p>
+      </section>
+
       {/* Footer */}
       <footer className={styles.footer}>
-        Khael | A developmental starting point, not a diagnosis | Free forever
+        <div className={styles.footerLinks}>
+          <button
+            type="button"
+            className={styles.footerLink}
+            onClick={() => document.getElementById('privacy')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Privacy
+          </button>
+          <span className={styles.footerDivider}>·</span>
+          <button
+            type="button"
+            className={styles.footerLink}
+            onClick={() => document.getElementById('medical-disclaimer')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Medical disclaimer
+          </button>
+        </div>
+        <p className={styles.footerTagline}>Khael | A developmental starting point, not a diagnosis | Free forever</p>
       </footer>
     </div>
   );

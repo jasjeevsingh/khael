@@ -375,11 +375,17 @@ export default function FeelingForest({ ageBand, onComplete }) {
       >
         <rect x="0" y="0" width="800" height="600" fill="#E4DDE8" />
         <rect x="0" y="380" width="800" height="220" fill="#C8E0C8" opacity="0.4" />
-        {/* Flowers */}
-        {[100, 250, 450, 600, 720].map((x) => (
-          <g key={x} transform={`translate(${x}, ${410 + Math.random() * 40})`}>
+        {/* Flowers - deterministic positions to avoid visual jump on re-render */}
+        {[
+          { x: 100, y: 420, color: '#E8A0C8' },
+          { x: 250, y: 435, color: '#E8C84A' },
+          { x: 450, y: 428, color: '#B8A0E8' },
+          { x: 600, y: 442, color: '#E8C84A' },
+          { x: 720, y: 418, color: '#E8A0C8' },
+        ].map((f) => (
+          <g key={f.x} transform={`translate(${f.x}, ${f.y})`}>
             <line x1="0" y1="0" x2="0" y2="20" stroke="#5B8C5A" strokeWidth="2" />
-            <circle cx="0" cy="-2" r="5" fill={['#E8A0C8', '#E8C84A', '#B8A0E8'][Math.floor(Math.random() * 3)]} />
+            <circle cx="0" cy="-2" r="5" fill={f.color} />
           </g>
         ))}
       </svg>

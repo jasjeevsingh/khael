@@ -35,6 +35,7 @@ export default function Learn() {
           return (
             <div key={topic.id} className={styles.item}>
               <button
+                id={`trigger-${topic.id}`}
                 className={styles.trigger}
                 onClick={() => toggle(topic.id)}
                 aria-expanded={isOpen}

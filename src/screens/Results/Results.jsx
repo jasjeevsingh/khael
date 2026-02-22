@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useEffect, useRef } from 'react';
 import { useGameState } from '../../state/gameState';
 import { PILLAR_KEYS } from '../../engine/scoring';
 import { getPillarFriendlyName } from '../../data/scoreTemplates';
@@ -20,6 +20,11 @@ const AGE_AVERAGES = {
 export default function Results() {
   const { state, goToScreen, resetGame } = useGameState();
   const results = state.results;
+  const mainHeadingRef = useRef(null);
+
+  useEffect(() => {
+    mainHeadingRef.current?.focus({ preventScroll: true });
+  }, [results]);
 
   const scores = useMemo(
     () => PILLAR_KEYS.map((k) => results?.pillars[k]?.score ?? 50),
@@ -76,9 +81,14 @@ export default function Results() {
       {/* Header */}
       <section className={`${styles.header} no-print`}>
         <Noor size={100} mood="happy" animate />
-        <h1 className={styles.profileTitle}>{profileLabel}</h1>
+        <h1 className={styles.profileTitle} ref={mainHeadingRef} tabIndex={-1}>
+          {profileLabel}
+        </h1>
         <p className={styles.date}>{today}</p>
-        <p className={styles.date}>Session confidence: {confidence}%</p>
+        <p className={styles.confidenceNote}>
+          Session confidence: {typeof confidence === 'number' ? confidence : 0}% — reflects how consistent
+          your child's responses were; lower values suggest trying again on another day.
+        </p>
       </section>
 
       {/* Radar chart */}
@@ -126,20 +136,19 @@ export default function Results() {
         {isWarrantsAttention && (
           <div className={styles.followUpText}>
             <p>
-              Based on what we observed today, your child's profile suggests it may be worth having
-              a conversation with your pediatrician about a developmental evaluation. This is not a
-              diagnosis — it's a data point. Here is what we'd recommend saying:
+              Based on how your child engaged today, we noticed some patterns that you might want
+              to discuss with your pediatrician. This is gentle, descriptive feedback — not a
+              diagnosis. If you decide to bring it up, here's something you could say:
             </p>
             <div className={styles.followUpQuote}>
-              "I had my child complete an online developmental activity called Khael. The results
-              suggested some challenges in {weakPillars.map((k) => getPillarFriendlyName(k)).join(', ')}.
-              I'd like to discuss whether a formal developmental evaluation is appropriate."
+              "I had my child try an online observational activity called Khael. The feedback
+              suggested I pay attention to how they engaged with {weakPillars.map((k) => getPillarFriendlyName(k)).join(', ')}.
+              I'd like to discuss whether a developmental evaluation might be helpful."
             </div>
             <p>
-              A pediatrician can refer you to a developmental-behavioral pediatrician or
-              neuropsychologist who can conduct a thorough assessment. Early evaluation is always
-              better than waiting — even if the results turn out to be within normal range, the
-              information is valuable.
+              A pediatrician can refer you to a developmental-behavioral specialist if that
+              seems appropriate. Early conversations are often helpful — even when concerns turn
+              out to be within the normal range.
             </p>
           </div>
         )}
@@ -147,10 +156,10 @@ export default function Results() {
         {isDeveloping && (
           <div className={styles.followUpText}>
             <p>
-              Your child's profile shows some areas that are developing a little differently from
-              what we might expect. This is not cause for alarm — children develop at different
-              rates — but it may be worth mentioning to your pediatrician at your next well-child
-              visit. Use the summary below as a conversation starter.
+              Today's observations showed some variation in how your child engaged across
+              different activities. Children develop at different rates, and this is descriptive
+              feedback — not a cause for alarm. You might mention it at your next well-child
+              visit as a conversation starter.
             </p>
           </div>
         )}
@@ -169,12 +178,13 @@ export default function Results() {
         {!isWarrantsAttention && !isDeveloping && !isInconclusive && (
           <div className={styles.followUpText}>
             <p>
-              Your child engaged wonderfully with Noor's adventure! Their profile shows healthy
-              engagement across the activities we explored together. Keep nurturing their curiosity
-              and providing opportunities for play-based learning.
+              Your child engaged wonderfully with Noor's adventure! What we observed suggests
+              healthy engagement across the activities — a gentle, positive snapshot of how they
+              played today. Keep nurturing their curiosity and providing opportunities for
+              play-based learning.
             </p>
             <p>
-              If you ever have concerns about your child's development, your pediatrician is
+              If you ever have questions about your child's development, your pediatrician is
               always the right first call. Trust your instincts as a parent — you know your child
               best.
             </p>
@@ -200,6 +210,30 @@ export default function Results() {
       {/* Learn section */}
       <Learn />
 
+      {/* Privacy */}
+      <section className={`${styles.legalSection} no-print`} id="privacy">
+        <h2 className={styles.legalTitle}>Privacy</h2>
+        <p className={styles.legalText}>
+          Khael runs entirely in your browser. We do not collect, store, or transmit
+          your child's responses, scores, or any identifying information. Fonts are loaded
+          from Google; their privacy policy applies to that request. Session data exists
+          only in memory and is discarded when you close the tab. There is no account,
+          no database, and no tracking.
+        </p>
+      </section>
+
+      {/* Medical disclaimer */}
+      <section className={`${styles.legalSection} no-print`} id="medical-disclaimer">
+        <h2 className={styles.legalTitle}>Medical disclaimer & limitations</h2>
+        <p className={styles.legalText}>
+          Khael is an educational, observational activity — not a diagnostic tool. It is not
+          standardized, normed, or validated against clinical instruments. It does not produce
+          a diagnosis and is not a substitute for evaluation by a qualified professional.
+          Results are gentle, descriptive feedback about how your child engaged during play.
+          Always consult a pediatrician or qualified specialist for developmental questions.
+        </p>
+      </section>
+
       {/* Footer */}
       <div className={`${styles.backLink} no-print`}>
         <button className={styles.backLinkBtn} onClick={handleBack}>
@@ -208,7 +242,24 @@ export default function Results() {
       </div>
 
       <footer className={`${styles.footer} no-print`}>
-        Khael | A developmental starting point, not a diagnosis | Free forever
+        <div className={styles.footerLinks}>
+          <button
+            type="button"
+            className={styles.footerLink}
+            onClick={() => document.getElementById('privacy')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Privacy
+          </button>
+          <span className={styles.footerDivider}>·</span>
+          <button
+            type="button"
+            className={styles.footerLink}
+            onClick={() => document.getElementById('medical-disclaimer')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Medical disclaimer
+          </button>
+        </div>
+        <p className={styles.footerTagline}>Khael | A developmental starting point, not a diagnosis | Free forever</p>
       </footer>
     </div>
   );

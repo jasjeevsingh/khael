@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import Noor from '../../components/Noor/Noor';
 import styles from './Game.module.css';
 
@@ -33,6 +33,7 @@ export default function Transition({ moduleIndex, onContinue }) {
     >
       <Noor size={160} mood="happy" animate showBubble bubbleText={message} />
       <button
+        ref={continueRef}
         className={`btn-game ${styles.continueBtn}`}
         onClick={handleContinue}
         aria-label="Continue to next activity"

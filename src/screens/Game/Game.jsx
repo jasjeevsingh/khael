@@ -1,4 +1,4 @@
-import React, { useState, useCallback, Suspense } from 'react';
+import React, { useState, useCallback, Suspense, useEffect, useRef } from 'react';
 import { useGameState } from '../../state/gameState';
 import { computeFullResults } from '../../engine/scoring';
 import Noor from '../../components/Noor/Noor';
@@ -19,6 +19,7 @@ export default function Game() {
   const { state, completeModule, setResults } = useGameState();
   const [showTransition, setShowTransition] = useState(true);
   const moduleIndex = state.currentModule;
+  const hasComputedResults = useRef(false);
 
   const handleModuleComplete = useCallback(
     (result) => {
@@ -31,9 +32,15 @@ export default function Game() {
     setShowTransition(false);
   }, []);
 
+  useEffect(() => {
+    if (moduleIndex >= TOTAL_MODULES && !hasComputedResults.current) {
+      hasComputedResults.current = true;
+      const results = computeFullResults(state.moduleResults, state.conditions);
+      setResults(results);
+    }
+  }, [moduleIndex, state.moduleResults, state.conditions, setResults]);
+
   if (moduleIndex >= TOTAL_MODULES) {
-    const results = computeFullResults(state.moduleResults, state.conditions);
-    setResults(results);
     return null;
   }
 

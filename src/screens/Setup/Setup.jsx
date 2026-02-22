@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useGameState } from '../../state/gameState';
 import Noor from '../../components/Noor/Noor';
 import styles from './Setup.module.css';
@@ -27,7 +27,12 @@ const CONDITION_OPTIONS = [
 
 export default function Setup() {
   const { updateState, startGame } = useGameState();
+  const mainHeadingRef = useRef(null);
   const [ageBand, setAgeBand] = useState(null);
+
+  useEffect(() => {
+    mainHeadingRef.current?.focus({ preventScroll: true });
+  }, []);
   const [language, setLanguage] = useState(null);
   const [condition, setCondition] = useState(null);
   const [consent, setConsent] = useState(false);
@@ -46,7 +51,9 @@ export default function Setup() {
       <div className={styles.card}>
         <div className={styles.header}>
           <Noor size={80} mood="happy" />
-          <h1 className={styles.title}>Before we start</h1>
+          <h1 className={styles.title} ref={mainHeadingRef} tabIndex={-1}>
+            Before we start
+          </h1>
           <p className={styles.subtitle}>
             Just a few quick questions — no names or personal information needed.
           </p>
