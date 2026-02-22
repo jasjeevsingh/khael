@@ -207,8 +207,8 @@ export default function Results() {
       {/* Print summary (hidden until print) */}
       <PrintSummary results={results} ageBand={state.ageBand} />
 
-      {/* Learn section */}
-      <Learn />
+      {/* Learn section — personalized based on results */}
+      <Learn results={results} />
 
       {/* Privacy */}
       <section className={`${styles.legalSection} no-print`} id="privacy">

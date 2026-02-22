@@ -112,3 +112,140 @@
   line-height: 1.75;
   white-space: pre-line;
 }
+
+/* Personalized Quick Tips Section */
+.quickTipsSection {
+  background: linear-gradient(135deg, var(--cream) 0%, #fff9e6 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-2xl);
+  border: 1px solid rgba(184, 212, 200, 0.3);
+}
+
+.quickTipsTitle {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.quickTipsIntro {
+  color: var(--text-light);
+  font-size: 0.95rem;
+  margin: 0 0 var(--space-lg) 0;
+}
+
+.quickTipsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.quickTipCard {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--sage);
+}
+
+.quickTipPillar {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--white);
+  background: var(--sage);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.quickTipTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.quickTipDescription {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* When to Seek Help */
+.whenToSeek {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.whenToSeekTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 var(--space-md) 0;
+}
+
+.whenToSeekList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.whenToSeekItem {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.whenToSeekItem strong {
+  color: var(--primary);
+}
+
+/* Relevant Topic Styling */
+.topicsIntro {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  margin-bottom: var(--space-md);
+}
+
+.itemRelevant {
+  position: relative;
+  border: 2px solid var(--sage);
+}
+
+.relevantBadge {
+  position: absolute;
+  top: -10px;
+  left: var(--space-lg);
+  background: var(--sage);
+  color: var(--white);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 10px;
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 600px) {
+  .quickTipsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .quickTipsSection {
+    padding: var(--space-lg);
+  }
+}

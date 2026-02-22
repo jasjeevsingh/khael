@@ -21,6 +21,11 @@ const MODULE_THEMES = [
 export default function Transition({ moduleIndex, onContinue }) {
   const message = ENCOURAGEMENTS[moduleIndex % ENCOURAGEMENTS.length];
   const theme = MODULE_THEMES[moduleIndex] ?? MODULE_THEMES[0];
+  const continueRef = useRef(null);
+
+  useEffect(() => {
+    continueRef.current?.focus({ preventScroll: true });
+  }, [moduleIndex]);
 
   const handleContinue = useCallback(() => {
     onContinue();
