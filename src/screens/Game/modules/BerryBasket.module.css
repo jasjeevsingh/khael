@@ -1,0 +1,86 @@
+.scene {
+  background: #D4E8DF;
+  position: relative;
+}
+
+.berryRow {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+  z-index: 2;
+}
+
+.berrySlot {
+  position: relative;
+}
+
+.tapIndicator {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: feedbackPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.lilyPadRow {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  z-index: 2;
+}
+
+.lilyPadBtn {
+  width: 80px;
+  height: 80px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  animation: breathe 2.5s ease-in-out infinite;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.lilyPadBtn:hover {
+  transform: scale(1.1);
+}
+
+.lilyPadBtn:active {
+  transform: scale(0.92);
+  animation: none;
+}
+
+.progressDots {
+  position: absolute;
+  bottom: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.dotFilled {
+  background: var(--primary);
+  transform: scale(1.2);
+}
+
+.dotEmpty {
+  background: #ccc;
+}

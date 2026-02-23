@@ -2,7 +2,8 @@ import React, { useState, useCallback, Suspense, useEffect, useRef } from 'react
 import { useGameState } from '../../state/gameState';
 import { computeFullResults } from '../../engine/scoring';
 import Noor from '../../components/Noor/Noor';
-import ProgressTrail from '../../components/ProgressTrail/ProgressTrail';
+import JourneyMap from '../../components/JourneyMap/JourneyMap';
+import Tutorial from '../../components/Tutorial/Tutorial';
 import Transition from './Transition';
 import styles from './Game.module.css';
 
@@ -18,8 +19,26 @@ const TOTAL_MODULES = 5;
 export default function Game() {
   const { state, completeModule, setResults } = useGameState();
   const [showTransition, setShowTransition] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [noorMood, setNoorMood] = useState('happy');
   const moduleIndex = state.currentModule;
   const hasComputedResults = useRef(false);
+  const shownTutorials = useRef(new Set());
+  const moodTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (moodTimerRef.current) clearTimeout(moodTimerRef.current);
+    };
+  }, []);
+
+  const triggerNoorReaction = useCallback((correct) => {
+    if (moodTimerRef.current) clearTimeout(moodTimerRef.current);
+    setNoorMood(correct ? 'celebrating' : 'encouraging');
+    moodTimerRef.current = setTimeout(() => {
+      setNoorMood('happy');
+    }, 1200);
+  }, []);
 
   const handleModuleComplete = useCallback(
     (result) => {
@@ -30,6 +49,14 @@ export default function Game() {
 
   const handleTransitionContinue = useCallback(() => {
     setShowTransition(false);
+    if (!shownTutorials.current.has(moduleIndex)) {
+      shownTutorials.current.add(moduleIndex);
+      setShowTutorial(true);
+    }
+  }, [moduleIndex]);
+
+  const handleTutorialComplete = useCallback(() => {
+    setShowTutorial(false);
   }, []);
 
   useEffect(() => {
@@ -64,16 +91,23 @@ export default function Game() {
     <div className={styles.game}>
       <div className={styles.topBar}>
         <div className={styles.noorCorner}>
-          <Noor size={40} mood="happy" />
+          <Noor size={40} mood={noorMood} />
         </div>
-        <ProgressTrail current={moduleIndex} total={TOTAL_MODULES} />
+        <JourneyMap current={moduleIndex} total={TOTAL_MODULES} compact />
       </div>
-      <div className={styles.moduleContainer}>
+      <div className={styles.moduleContainer} style={{ position: 'relative' }}>
         <Suspense
           fallback={<div className={styles.loading}>Getting ready...</div>}
         >
-          <ModuleComponent ageBand={state.ageBand} onComplete={onComplete} />
+          <ModuleComponent
+            ageBand={state.ageBand}
+            onComplete={onComplete}
+            onFeedback={triggerNoorReaction}
+          />
         </Suspense>
+        {showTutorial && (
+          <Tutorial moduleIndex={moduleIndex} onComplete={handleTutorialComplete} />
+        )}
       </div>
     </div>
   );

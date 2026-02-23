@@ -1,0 +1,118 @@
+.scene {
+  background: #1a2438;
+  position: relative;
+}
+
+.foxContainer {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.foxBreathing {
+  animation: foxBreathe 3s ease-in-out infinite;
+}
+
+@keyframes foxBreathe {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.015); }
+}
+
+.drumBtn {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+  transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.drumBtn:hover:not(:disabled) {
+  transform: translateX(-50%) scale(1.06);
+}
+
+.drumBtn:active:not(:disabled) {
+  transform: translateX(-50%) scale(0.9);
+}
+
+.drumBtn:disabled {
+  cursor: default;
+}
+
+.drumPulse {
+  animation: drumGlow 1s ease-in-out infinite;
+}
+
+@keyframes drumGlow {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.06);
+    filter: drop-shadow(0 0 12px rgba(232, 196, 74, 0.4));
+  }
+}
+
+.feedback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.5rem;
+  font-family: var(--font-game, 'Nunito');
+  z-index: 20;
+  pointer-events: none;
+  animation: feedbackPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.feedbackGood {
+  color: var(--primary);
+}
+
+.feedbackBad {
+  color: var(--warning);
+}
+
+.zzz {
+  position: absolute;
+  top: 8%;
+  left: 55%;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-game, 'Nunito');
+  font-weight: 700;
+  z-index: 6;
+  animation: zzzFloat 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes zzzFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(-5deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-12px) rotate(5deg);
+    opacity: 0.8;
+  }
+}
+
+.firefly {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #E8C84A;
+  box-shadow: 0 0 6px 2px rgba(232, 200, 74, 0.4);
+  z-index: 3;
+  pointer-events: none;
+}

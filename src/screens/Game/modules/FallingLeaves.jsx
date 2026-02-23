@@ -12,10 +12,17 @@ import {
   estimateExGaussian,
 } from '../../../engine/consistency';
 import { estimateDDM } from '../../../engine/driftDiffusion';
+import styles from './FallingLeaves.module.css';
+import './modules.css';
 
 const TOTAL_LEAVES = 35;
 const TARGET_RATIO = 0.5;
 const LEAF_COLORS = ['#E87C3F', '#D45B3A', '#E8A84A', '#C4783C'];
+const LEAF_SHAPES = [
+  'M28 4 C18 8, 6 18, 8 30 C10 42, 22 52, 28 52 C34 52, 46 42, 48 30 C50 18, 38 8, 28 4Z',
+  'M28 6 C20 6, 8 16, 10 28 C12 40, 22 50, 28 52 C34 50, 44 40, 46 28 C48 16, 36 6, 28 6Z',
+  'M28 4 C16 10, 4 22, 10 34 C14 42, 24 52, 28 52 C32 52, 42 42, 46 34 C52 22, 40 10, 28 4Z',
+];
 
 const FALL_START_PCT = -5;
 const FALL_END_PCT = 92;
@@ -36,7 +43,68 @@ function zScore(p) {
   return p < 0.5 ? -z : z;
 }
 
-export default function FallingLeaves({ ageBand, onComplete }) {
+function ForestBackground() {
+  return (
+    <svg viewBox="0 0 800 600" className="sceneBg" aria-hidden="true">
+      <defs>
+        <linearGradient id="flSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#C8DEC0" />
+          <stop offset="100%" stopColor="#D6E8D0" />
+        </linearGradient>
+      </defs>
+      <rect width="800" height="600" fill="url(#flSky)" />
+
+      {/* Tree trunks */}
+      <rect x="60" y="100" width="22" height="500" rx="6" fill="#7B6345" opacity="0.6" />
+      <rect x="200" y="80" width="18" height="520" rx="5" fill="#8B7355" opacity="0.5" />
+      <rect x="580" y="90" width="20" height="510" rx="6" fill="#7B6345" opacity="0.55" />
+      <rect x="720" y="110" width="24" height="490" rx="6" fill="#8B7355" opacity="0.5" />
+
+      {/* Canopy foliage - layered organic shapes */}
+      <ellipse cx="80" cy="80" rx="80" ry="60" fill="#3D6B3D" opacity="0.5" />
+      <ellipse cx="60" cy="60" rx="60" ry="45" fill="#4A7C4A" opacity="0.4" />
+      <ellipse cx="210" cy="60" rx="90" ry="55" fill="#3D6B3D" opacity="0.45" />
+      <ellipse cx="400" cy="30" rx="120" ry="65" fill="#4A7C4A" opacity="0.35" />
+      <ellipse cx="590" cy="55" rx="85" ry="55" fill="#3D6B3D" opacity="0.5" />
+      <ellipse cx="730" cy="70" rx="95" ry="60" fill="#4A7C4A" opacity="0.45" />
+
+      {/* Branches reaching across */}
+      <path d="M75 140 Q200 120, 280 160" stroke="#6B5335" strokeWidth="6" fill="none" opacity="0.3" />
+      <path d="M725 130 Q620 110, 540 155" stroke="#6B5335" strokeWidth="5" fill="none" opacity="0.25" />
+
+      {/* Dappled sunlight patches on forest floor */}
+      <ellipse cx="300" cy="520" rx="40" ry="15" fill="#E8E0A0" opacity="0.15" />
+      <ellipse cx="500" cy="540" rx="50" ry="18" fill="#E8E0A0" opacity="0.12" />
+
+      {/* Forest floor */}
+      <rect x="0" y="550" width="800" height="50" fill="#6B5335" opacity="0.5" />
+      <path d="M0 550 Q100 545, 200 552 Q300 558, 400 550 Q500 542, 600 552 Q700 558, 800 548" fill="#5B4325" opacity="0.4" />
+
+      {/* Fallen leaves on ground */}
+      <ellipse cx="150" cy="560" rx="8" ry="4" fill="#D45B3A" opacity="0.3" transform="rotate(15,150,560)" />
+      <ellipse cx="400" cy="565" rx="7" ry="3.5" fill="#E8A84A" opacity="0.25" transform="rotate(-20,400,565)" />
+      <ellipse cx="600" cy="558" rx="9" ry="4" fill="#E87C3F" opacity="0.3" transform="rotate(30,600,558)" />
+
+      {/* Mushroom */}
+      <g transform="translate(680, 530)" opacity="0.4">
+        <rect x="8" y="12" width="4" height="12" rx="2" fill="#E8D4B8" />
+        <ellipse cx="10" cy="12" rx="10" ry="7" fill="#E25B45" />
+        <circle cx="7" cy="10" r="2" fill="white" opacity="0.6" />
+        <circle cx="13" cy="8" r="1.5" fill="white" opacity="0.5" />
+      </g>
+
+      {/* Squirrel on branch */}
+      <g transform="translate(260, 145)" opacity="0.4">
+        <ellipse cx="10" cy="10" rx="8" ry="6" fill="#C4956A" />
+        <circle cx="5" cy="7" r="4" fill="#C4956A" />
+        <circle cx="3" cy="5" r="1" fill="#4A3728" />
+        <path d="M18 8 Q25 2, 22 12" stroke="#C4956A" strokeWidth="3" fill="none" />
+      </g>
+    </svg>
+  );
+}
+
+export default function FallingLeaves({ ageBand, onComplete, onFeedback }) {
   const [irt, setIrt] = useState(() => createIRTState(ageBand));
   const [leaves, setLeaves] = useState([]);
   const [leafIndex, setLeafIndex] = useState(0);
@@ -82,6 +150,7 @@ export default function FallingLeaves({ ageBand, onComplete }) {
     const { fallDuration, tapWindow } = bToLeafParams(irtRef.current.b, ageBand);
     const xPos = 10 + Math.random() * 80;
     const colorIdx = Math.floor(Math.random() * LEAF_COLORS.length);
+    const shapeIdx = Math.floor(Math.random() * LEAF_SHAPES.length);
     const now = performance.now();
 
     const leaf = {
@@ -89,6 +158,7 @@ export default function FallingLeaves({ ageBand, onComplete }) {
       isTarget,
       x: xPos,
       color: LEAF_COLORS[colorIdx],
+      shape: LEAF_SHAPES[shapeIdx],
       fallDuration,
       tapWindow,
       tapped: false,
@@ -108,7 +178,6 @@ export default function FallingLeaves({ ageBand, onComplete }) {
           if (l.id === leaf.id && !l.tapped && l.active) {
             if (l.isTarget) {
               setMisses((m) => m + 1);
-              hitsRef.current = hitsRef.current; // no change
               pushTrial({
                 correct: false,
                 rt: fallDuration,
@@ -165,12 +234,14 @@ export default function FallingLeaves({ ageBand, onComplete }) {
               const newIrt = updateTheta(currentIrt, true, rt, ageBand);
               setIrtAndRef(newIrt);
               pushTrial({ correct: true, rt, rtNorm, type: 'hit', module: 'PS' });
+              onFeedback?.(true);
             } else {
               setFalseAlarms((f) => f + 1);
               falseAlarmsRef.current += 1;
               const newIrt = updateTheta(currentIrt, false, rt, ageBand);
               setIrtAndRef(newIrt);
               pushTrial({ correct: false, rt, rtNorm, type: 'commission', module: 'PS' });
+              onFeedback?.(false);
             }
 
             if (leafTimersRef.current[leafId]) {
@@ -233,42 +304,17 @@ export default function FallingLeaves({ ageBand, onComplete }) {
   }, [onComplete, clearAllTimers]);
 
   return (
-    <div className="game-area" style={{ background: '#D6E8D0', position: 'relative', overflow: 'hidden' }}>
-      {/* Forest canopy background */}
-      <svg
-        viewBox="0 0 800 600"
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-        aria-hidden="true"
-      >
-        <rect x="0" y="0" width="800" height="600" fill="#D6E8D0" />
-        <ellipse cx="200" cy="-20" rx="250" ry="120" fill="#5B8C5A" opacity="0.4" />
-        <ellipse cx="600" cy="-40" rx="300" ry="130" fill="#4A7C4A" opacity="0.3" />
-        <ellipse cx="400" cy="-10" rx="200" ry="100" fill="#6B9C6A" opacity="0.35" />
-        <rect x="0" y="540" width="800" height="60" rx="0" fill="#8B6B4E" opacity="0.6" />
-      </svg>
+    <div className={`game-area ${styles.scene}`}>
+      <ForestBackground />
 
-      {/* Instructions */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 8,
-          left: 0,
-          right: 0,
-          textAlign: 'center',
-          fontFamily: "var(--font-game, 'Nunito')",
-          fontSize: 'clamp(0.8rem, 2vw, 1rem)',
-          color: '#2C3E35',
-          zIndex: 10,
-        }}
-      >
+      <div className="instruction">
         Tap the leaves with a ⭐!
       </div>
 
-      {/* Leaves */}
       {leaves.map((leaf) => {
         if (!leaf.active && !leaf.tapped && !leaf.missed) return null;
         const isCrumpling = leaf.tapped || (leaf.missed && !leaf.tapped);
-        const crumpleDuration = leaf.tapped ? 0.3 : 0.4;
+        const crumpleDuration = leaf.tapped ? 0.35 : 0.4;
         const speedFactor = Math.max(0, (4000 - leaf.fallDuration) / 2500);
         const hitboxSize = Math.round(90 + speedFactor * 40);
         const hitboxPad = Math.round((hitboxSize - 56) / 2);
@@ -276,6 +322,7 @@ export default function FallingLeaves({ ageBand, onComplete }) {
         return (
           <button
             key={leaf.id}
+            className={`${styles.leafBtn} ${isCrumpling ? styles.leafCrumple : styles.leafFalling}`}
             onClick={() => handleTapLeaf(leaf.id)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') handleTapLeaf(leaf.id);
@@ -285,31 +332,23 @@ export default function FallingLeaves({ ageBand, onComplete }) {
             aria-label={leaf.isTarget ? 'Star leaf - tap this!' : 'Regular leaf'}
             disabled={!leaf.active}
             style={{
-              position: 'absolute',
               left: `${leaf.x}%`,
-              top: isCrumpling ? `${leaf.finalTop ?? 0}%` : 0,
+              top: isCrumpling ? `${leaf.finalTop ?? 0}%` : undefined,
               width: hitboxSize,
               height: hitboxSize,
-              border: 'none',
-              background: 'transparent',
-              cursor: leaf.active ? 'pointer' : 'default',
               padding: hitboxPad,
-              zIndex: 5,
-              animation: isCrumpling
-                ? `crumple ${crumpleDuration}s ease-out forwards`
-                : `leafFall ${leaf.fallDuration}ms linear forwards`,
+              animationDuration: isCrumpling ? `${crumpleDuration}s` : `${leaf.fallDuration}ms`,
               pointerEvents: leaf.active ? 'auto' : 'none',
-              transform: 'translateX(-50%)',
             }}
           >
             <svg width="56" height="56" viewBox="0 0 56 56">
-              <path
-                d="M28 4 C18 8, 6 18, 8 30 C10 42, 22 52, 28 52 C34 52, 46 42, 48 30 C50 18, 38 8, 28 4Z"
-                fill={leaf.color}
-              />
-              <line x1="28" y1="8" x2="28" y2="48" stroke="#8B5E3C" strokeWidth="1.5" opacity="0.4" />
+              <path d={leaf.shape} fill={leaf.color} />
+              <path d={leaf.shape} fill="white" opacity="0.1" />
+              <line x1="28" y1="10" x2="28" y2="46" stroke="#8B5E3C" strokeWidth="1.5" opacity="0.3" />
+              <line x1="18" y1="24" x2="28" y2="18" stroke="#8B5E3C" strokeWidth="1" opacity="0.2" />
+              <line x1="38" y1="30" x2="28" y2="24" stroke="#8B5E3C" strokeWidth="1" opacity="0.2" />
               {leaf.isTarget && (
-                <text x="28" y="32" textAnchor="middle" dominantBaseline="middle" fontSize="16">
+                <text x="28" y="34" textAnchor="middle" dominantBaseline="middle" fontSize="16">
                   ⭐
                 </text>
               )}
@@ -318,19 +357,7 @@ export default function FallingLeaves({ ageBand, onComplete }) {
         );
       })}
 
-      {/* Score display */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 8,
-          right: 12,
-          fontFamily: "var(--font-game, 'Nunito')",
-          fontSize: '0.8rem',
-          color: '#6B7F78',
-          zIndex: 10,
-        }}
-        aria-hidden="true"
-      >
+      <div className="trialCounter" aria-hidden="true">
         {leafIndex}/{TOTAL_LEAVES}
       </div>
     </div>
