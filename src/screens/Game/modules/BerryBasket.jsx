@@ -314,6 +314,9 @@ export default function BerryBasket({ ageBand, onComplete, onFeedback }) {
 
   useEffect(() => {
     if (trialNum === 0 && phase === PHASES.PAUSED) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/67da0dca-cfc0-4e6f-b8ab-f9e1187045ea',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BerryBasket.jsx:startEffect',message:'BerryBasket starting first trial timer',data:{trialNum,phase},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
+      // #endregion
       const t = setTimeout(() => startTrial(), 500);
       timersRef.current.push(t);
     }

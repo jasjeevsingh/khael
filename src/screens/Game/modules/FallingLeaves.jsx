@@ -211,6 +211,10 @@ export default function FallingLeaves({ ageBand, onComplete, onFeedback }) {
       return;
     }
 
+    // #region agent log
+    if (leafIndex === 0) fetch('http://127.0.0.1:7243/ingest/67da0dca-cfc0-4e6f-b8ab-f9e1187045ea',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FallingLeaves.jsx:spawnEffect',message:'FallingLeaves starting first spawn',data:{leafIndex},timestamp:Date.now(),hypothesisId:'H3'})}).catch(()=>{});
+    // #endregion
+
     const delay = 600 + Math.random() * 800;
     spawnTimerRef.current = setTimeout(spawnLeaf, delay);
     return () => {

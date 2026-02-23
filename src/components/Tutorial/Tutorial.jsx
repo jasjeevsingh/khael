@@ -294,15 +294,12 @@ const Tutorial = React.memo(function Tutorial({ moduleIndex, onComplete }) {
   return (
     <div
       style={{
-        position: 'absolute',
-        inset: 0,
-        zIndex: 30,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(0, 0, 0, 0.4)',
-        backdropFilter: 'blur(4px)',
+        width: '100%',
+        minHeight: 300,
         animation: 'fadeIn 0.3s ease-out',
         gap: 16,
         padding: 24,

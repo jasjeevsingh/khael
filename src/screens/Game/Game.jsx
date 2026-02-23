@@ -48,6 +48,9 @@ export default function Game() {
   );
 
   const handleTransitionContinue = useCallback(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/67da0dca-cfc0-4e6f-b8ab-f9e1187045ea',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Game.jsx:handleTransitionContinue',message:'Transition continue clicked',data:{moduleIndex,willShowTutorial:!shownTutorials.current.has(moduleIndex)},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
+    // #endregion
     setShowTransition(false);
     if (!shownTutorials.current.has(moduleIndex)) {
       shownTutorials.current.add(moduleIndex);
@@ -56,6 +59,9 @@ export default function Game() {
   }, [moduleIndex]);
 
   const handleTutorialComplete = useCallback(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/67da0dca-cfc0-4e6f-b8ab-f9e1187045ea',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Game.jsx:handleTutorialComplete',message:'Tutorial dismissed',data:{moduleIndex},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
+    // #endregion
     setShowTutorial(false);
   }, []);
 
@@ -87,6 +93,22 @@ export default function Game() {
     setShowTransition(true);
   };
 
+  if (showTutorial) {
+    return (
+      <div className={styles.game}>
+        <div className={styles.topBar}>
+          <div className={styles.noorCorner}>
+            <Noor size={40} mood="happy" />
+          </div>
+          <JourneyMap current={moduleIndex} total={TOTAL_MODULES} compact />
+        </div>
+        <div className={styles.moduleContainer} style={{ position: 'relative' }}>
+          <Tutorial moduleIndex={moduleIndex} onComplete={handleTutorialComplete} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.game}>
       <div className={styles.topBar}>
@@ -95,7 +117,7 @@ export default function Game() {
         </div>
         <JourneyMap current={moduleIndex} total={TOTAL_MODULES} compact />
       </div>
-      <div className={styles.moduleContainer} style={{ position: 'relative' }}>
+      <div className={styles.moduleContainer}>
         <Suspense
           fallback={<div className={styles.loading}>Getting ready...</div>}
         >
@@ -105,9 +127,6 @@ export default function Game() {
             onFeedback={triggerNoorReaction}
           />
         </Suspense>
-        {showTutorial && (
-          <Tutorial moduleIndex={moduleIndex} onComplete={handleTutorialComplete} />
-        )}
       </div>
     </div>
   );
