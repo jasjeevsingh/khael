@@ -51,7 +51,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Trust bar */}
+      {/* Trust bar
       <section className={styles.trustBar} aria-label="Trust indicators">
         <div className={styles.trustItem}>
           <span className={styles.trustIcon} aria-hidden="true">🔒</span>
@@ -65,7 +65,7 @@ export default function Landing() {
           <span className={styles.trustIcon} aria-hidden="true">🎮</span>
           <span>Designed to feel like a game</span>
         </div>
-      </section>
+      </section> */}
 
       {/* How it works */}
       <section className={styles.howSection}>
@@ -101,7 +101,7 @@ export default function Landing() {
       <section className={styles.disclaimer} id="medical-disclaimer">
         <blockquote className={styles.disclaimerBox}>
           Khael is an educational, observational activity — not a diagnostic tool. It is not
-          standardized, normed, or validated against clinical instruments. It does not produce
+          standardized, normed, or validated against clinical instruments yet. It does not produce
           a diagnosis and is not a substitute for evaluation by a qualified professional.
           What it offers is a gentle, descriptive window into how your child engaged with
           play-based tasks — something you might bring to your pediatrician if you have

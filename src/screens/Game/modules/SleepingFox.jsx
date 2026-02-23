@@ -24,103 +24,81 @@ export default function SleepingFox({ ageBand, onComplete }) {
   const [feedback, setFeedback] = useState(null);
   const [trials, setTrials] = useState([]);
   const [done, setDone] = useState(false);
+
+  const irtRef = useRef(irt);
+  const trialsRef = useRef(trials);
   const stimulusStartRef = useRef(null);
   const timerRef = useRef(null);
   const tappedRef = useRef(false);
+  const isGoRef = useRef(true);
 
-  const clearTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
+  const setIrtAndRef = useCallback((newIrt) => {
+    irtRef.current = newIrt;
+    setIrt(newIrt);
   }, []);
 
-  useEffect(() => () => clearTimer(), [clearTimer]);
-
-  const runTrial = useCallback(() => {
-    if (trialNum >= TOTAL_TRIALS) return;
-
-    const goTrial = Math.random() < GO_RATIO;
-    setIsGo(goTrial);
-    setPhase('stimulus');
-    setFeedback(null);
-    tappedRef.current = false;
-    stimulusStartRef.current = performance.now();
-
-    const params = bToGoNoGoParams(irt.b);
-    const duration = goTrial ? params.goDuration : params.stopDuration;
-
-    timerRef.current = setTimeout(() => {
-      if (!tappedRef.current) {
-        if (goTrial) {
-          const rt = duration;
-          const rtNorm = normalizeRT(rt, ageBand);
-          const newIrt = updateTheta(irt, false, rt, ageBand);
-          setIrt(newIrt);
-          setTrials((prev) => [
-            ...prev,
-            { correct: false, rt, rtNorm, type: 'omission', isGo: true, module: 'EF' },
-          ]);
-          setFeedback('miss');
-        } else {
-          setTrials((prev) => [
-            ...prev,
-            { correct: true, rt: 0, rtNorm: 0, type: 'correct_reject', isGo: false, module: 'EF' },
-          ]);
-          setFeedback('good');
-        }
-      }
-
-      setPhase('isi');
-      const isi = 400 + Math.random() * 200;
-      timerRef.current = setTimeout(() => {
-        setTrialNum((n) => n + 1);
-      }, isi);
-    }, duration);
-  }, [trialNum, irt, ageBand]);
+  const pushTrial = useCallback((trial) => {
+    setTrials((prev) => {
+      const next = [...prev, trial];
+      trialsRef.current = next;
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
-    if (trialNum >= TOTAL_TRIALS && !done) {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (done) return;
+    if (trialNum >= TOTAL_TRIALS) {
       setDone(true);
-      const rts = trials.filter((t) => t.type === 'hit').map((t) => t.rt);
-      const allRts = trials.filter((t) => t.rt > 0).map((t) => t.rt);
+      const t = trialsRef.current;
+      const currentIrt = irtRef.current;
+      const rts = t.filter((r) => r.type === 'hit').map((r) => r.rt);
+      const allRts = t.filter((r) => r.rt > 0).map((r) => r.rt);
       const itv = computeITV(rts.length > 1 ? rts : allRts);
       const meanRT = allRts.length > 0 ? allRts.reduce((a, b) => a + b, 0) / allRts.length : 1200;
-      const baseline = computeEarlyBaselineRT(trials, 6) || meanRT;
-      const decay = detectEngagementDecay(trials, baseline);
+      const baseline = computeEarlyBaselineRT(t, 6) || meanRT;
+      const decay = detectEngagementDecay(t, baseline);
       const ddm = estimateDDM(
-        trials
-          .filter((t) => t.rt > 0)
-          .map((t) => ({ correct: t.correct, rtNorm: t.rtNorm, rt: t.rt })),
+        t
+          .filter((r) => r.rt > 0)
+          .map((r) => ({ correct: r.correct, rtNorm: r.rtNorm, rt: r.rt })),
         itv
       );
       const exgauss = estimateExGaussian(allRts);
 
-      const goTrials = trials.filter((t) => t.isGo);
-      const stopTrials = trials.filter((t) => !t.isGo);
+      const goTrials = t.filter((r) => r.isGo);
+      const stopTrials = t.filter((r) => !r.isGo);
       const commissionRate =
         stopTrials.length > 0
-          ? stopTrials.filter((t) => t.type === 'commission').length / stopTrials.length
+          ? stopTrials.filter((r) => r.type === 'commission').length / stopTrials.length
           : 0;
       const omissionRate =
         goTrials.length > 0
-          ? goTrials.filter((t) => t.type === 'omission').length / goTrials.length
+          ? goTrials.filter((r) => r.type === 'omission').length / goTrials.length
           : 0;
-      const hitTrialRts = trials.filter((t) => t.type === 'hit').map((t) => t.rt);
+      const hitTrialRts = t.filter((r) => r.type === 'hit').map((r) => r.rt);
       const meanGoRT =
         hitTrialRts.length > 0
           ? hitTrialRts.reduce((a, b) => a + b, 0) / hitTrialRts.length
           : 0;
 
       let postErrorSlowing = 1.0;
-      const commissionIndices = trials
-        .map((t, i) => (t.type === 'commission' ? i : -1))
+      const commissionIndices = t
+        .map((r, i) => (r.type === 'commission' ? i : -1))
         .filter((i) => i >= 0);
       if (commissionIndices.length > 0 && hitTrialRts.length > 0) {
         const postErrorRTs = commissionIndices
           .map((i) => {
-            for (let j = i + 1; j < trials.length; j++) {
-              if (trials[j].type === 'hit') return trials[j].rt;
+            for (let j = i + 1; j < t.length; j++) {
+              if (t[j].type === 'hit') return t[j].rt;
             }
             return null;
           })
@@ -132,13 +110,13 @@ export default function SleepingFox({ ageBand, onComplete }) {
       }
 
       onComplete({
-        theta: irt.theta,
-        thetaSE: irt.se,
-        thetaCI: irt.ci,
+        theta: currentIrt.theta,
+        thetaSE: currentIrt.se,
+        thetaCI: currentIrt.ci,
         itv,
         ddm,
         engagementFatigued: decay.fatigued,
-        trials,
+        trials: t,
         extras: {
           commissionRate,
           omissionRate,
@@ -150,10 +128,49 @@ export default function SleepingFox({ ageBand, onComplete }) {
       return;
     }
 
-    if (trialNum < TOTAL_TRIALS && !done) {
-      runTrial();
-    }
-  }, [trialNum, done, trials, irt.theta, irt.se, irt.ci, onComplete, runTrial]);
+    // Start a new trial
+    const goTrial = Math.random() < GO_RATIO;
+    isGoRef.current = goTrial;
+    setIsGo(goTrial);
+    setPhase('stimulus');
+    setFeedback(null);
+    tappedRef.current = false;
+    stimulusStartRef.current = performance.now();
+
+    const currentIrt = irtRef.current;
+    const params = bToGoNoGoParams(currentIrt.b);
+    const duration = goTrial ? params.goDuration : params.stopDuration;
+
+    timerRef.current = setTimeout(() => {
+      if (!tappedRef.current) {
+        const latestIrt = irtRef.current;
+        if (goTrial) {
+          const rt = duration;
+          const rtNorm = normalizeRT(rt, ageBand);
+          const newIrt = updateTheta(latestIrt, false, rt, ageBand);
+          setIrtAndRef(newIrt);
+          pushTrial({ correct: false, rt, rtNorm, type: 'omission', isGo: true, module: 'EF' });
+          setFeedback('miss');
+        } else {
+          pushTrial({ correct: true, rt: 0, rtNorm: 0, type: 'correct_reject', isGo: false, module: 'EF' });
+          setFeedback('good');
+        }
+      }
+
+      setPhase('isi');
+      const isi = 400 + Math.random() * 200;
+      timerRef.current = setTimeout(() => {
+        setTrialNum((n) => n + 1);
+      }, isi);
+    }, duration);
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [trialNum, done, ageBand, onComplete, setIrtAndRef, pushTrial]);
 
   const handleTap = useCallback(() => {
     if (phase !== 'stimulus' || tappedRef.current) return;
@@ -161,25 +178,21 @@ export default function SleepingFox({ ageBand, onComplete }) {
 
     const rt = performance.now() - stimulusStartRef.current;
     const rtNorm = normalizeRT(rt, ageBand);
+    const currentIrt = irtRef.current;
+    const goTrial = isGoRef.current;
 
-    if (isGo) {
-      const newIrt = updateTheta(irt, true, rt, ageBand);
-      setIrt(newIrt);
-      setTrials((prev) => [
-        ...prev,
-        { correct: true, rt, rtNorm, type: 'hit', isGo: true, module: 'EF' },
-      ]);
+    if (goTrial) {
+      const newIrt = updateTheta(currentIrt, true, rt, ageBand);
+      setIrtAndRef(newIrt);
+      pushTrial({ correct: true, rt, rtNorm, type: 'hit', isGo: true, module: 'EF' });
       setFeedback('hit');
     } else {
-      const newIrt = updateTheta(irt, false, rt, ageBand);
-      setIrt(newIrt);
-      setTrials((prev) => [
-        ...prev,
-        { correct: false, rt, rtNorm, type: 'commission', isGo: false, module: 'EF' },
-      ]);
+      const newIrt = updateTheta(currentIrt, false, rt, ageBand);
+      setIrtAndRef(newIrt);
+      pushTrial({ correct: false, rt, rtNorm, type: 'commission', isGo: false, module: 'EF' });
       setFeedback('oops');
     }
-  }, [phase, isGo, irt, ageBand]);
+  }, [phase, ageBand, setIrtAndRef, pushTrial]);
 
   const eyesClosed = isGo && phase === 'stimulus';
 
